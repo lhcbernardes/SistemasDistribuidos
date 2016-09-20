@@ -11,13 +11,12 @@ public class Cliente
 
     public static void main(String[] arg) throws IOException
     {
-        
-        
+
         Socket s = null;
         try
         {
             System.out.println("Conectando...");
-            s = new Socket("192.168.0.101", 6789);
+            s = new Socket("192.168.0.100", 6789);
             DataInputStream in = new DataInputStream(s.getInputStream());
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             System.out.println("Conectado.");
@@ -47,7 +46,6 @@ public class Cliente
                 if (line.trim().equals("hora"))
                 {
                     getHoras(printWriter);
-
                 }
                 if (line.trim().equals("so"))
                 {
