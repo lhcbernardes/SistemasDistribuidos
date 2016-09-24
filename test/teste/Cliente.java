@@ -1,74 +1,51 @@
 package teste;
 
-import echoserver.Encripter;
 import java.io.*;
 import java.net.*;
-import java.util.GregorianCalendar;
-import java.util.Scanner;
+import java.util.*;
 
 public class Cliente
 {
 
-    public static void main(String[] arg) throws IOException
+    public static void main(String[] arg)
     {
-
         Socket s = null;
         try
         {
             System.out.println("Conectando...");
-            s = new Socket("192.168.0.100", 6789);
+            s = new Socket("192.168.97.42", 8189);
             DataInputStream in = new DataInputStream(s.getInputStream());
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
-            System.out.println("Conectado.");
-            /**
-             * for (c = 0; c < total; c++) { numero = 100.0 * Math.random();
-             * System.out.println("Enviando " + numero);
-             * out.writeDouble(numero); } out.flush(); out.writeDouble(-1.0);
-             * System.out.println("Somatório = " + in.readDouble());
-             *
-             */
+            Scanner scan = new Scanner(System.in);
+            System.out.println("Conectado");
 
-            @SuppressWarnings("resource")
-            Scanner scanner = new Scanner(in);
-            PrintWriter printWriter = new PrintWriter(out, true /* autoFlush */);
-            System.out.println("encriptar para mandar mesnsagem");
-            System.out.println("hora para saber a hora");
-            System.out.println("so para sistema operacional");
-            System.out.println("disk para saber o tamanho e utilizado em disco");
+            String imprimir = new String("");
 
+            String string = in.readUTF();
+            System.out.print(string);
+
+            string = in.readUTF();
+            System.out.print(string);
             boolean done = false;
-
-            while (!done && scanner.hasNextLine())
+            while (!done)
             {
-                String line = scanner.nextLine();
-                //out.println("Echo: " + line);
+                System.out.println("BYE para encerrar");
+                System.out.println("hora para mostrar a hora atual");
+                System.out.println("SO para mostrar sistema operacional");
+                System.out.println("disco para mostrar espaço em disco");
+                string = scan.nextLine();
+                out.writeUTF(string);
+                if (string == "BYE")
+                {
+                    done = in.readBoolean();
+                }
 
-                if (line.trim().equals("hora"))
-                {
-                    getHoras(printWriter);
-                }
-                if (line.trim().equals("so"))
-                {
-                    getSO(printWriter);
-                }
-                if (line.trim().equals("disk"))
-                {
-                    getFreeDisk(printWriter);
-                }
-                if (line.trim().equals("encriptar"))
-                {
-                    printWriter.println("Digite o que quer encriptar\n");
-                    line = scanner.nextLine();
-                    getEncriptar(printWriter, line);
-                }
-                if (line.trim().equals("BYE"))
-                {
-                    done = true;
-                }
+                imprimir = in.readUTF();
+                imprimir(imprimir);
+
             }
         } catch (Exception e)
         {
-            System.out.println("Erro: " + e.getMessage());
         } finally
         {
             try
@@ -81,7 +58,7 @@ public class Cliente
             {
             }
         }
-        System.out.println("Conexão encerrada");
+        System.out.println("Conexao encerrada");
         try
         {
             System.in.read();
@@ -90,42 +67,22 @@ public class Cliente
         }
     }
 
-    private static void getEncriptar(PrintWriter out, String texto)
+    public static void imprimir(String imprimir)
     {
-        Encripter cripter = new Encripter(texto);
-        out.println(cripter.encriptar());
-
+        System.out.println(decodificar(imprimir) + "\n");
     }
 
-    private static void getFreeDisk(PrintWriter out)
+    public static String decodificar(String imprimir)
     {
-        File arquivo = new File("C:\\");
-        long total = (long) (arquivo.getTotalSpace() / 1000000.00);
-        StringBuilder x = new StringBuilder();
 
-        x.append(total);
-        Encripter texto = new Encripter(x.toString());
-        out.println("Disponível: " + texto.encriptar() + "MB");
-
-    }
-
-    private static void getSO(PrintWriter out)
-    {
-        String so = System.getProperty("os.name").toUpperCase();
-
-        Encripter texto = new Encripter(so);
-        out.println(texto.encriptar());
-    }
-
-    private static void getHoras(PrintWriter out)
-    {
-        GregorianCalendar hora = new GregorianCalendar();
-        StringBuilder concat = new StringBuilder();
-
-        concat.append(hora.get(GregorianCalendar.HOUR_OF_DAY));
-        concat.append(":");
-        concat.append(hora.get(GregorianCalendar.MINUTE));
-        Encripter texto = new Encripter(concat.toString());
-        out.println(texto.encriptar());
+        char encriptadoArray[] = imprimir.toCharArray();
+        int auxiliar;
+        for (int i = 0; i < encriptadoArray.length; i++)
+        {
+            auxiliar = (int) encriptadoArray[i] - 3;
+            encriptadoArray[i] = (char) auxiliar;
+        }
+        imprimir = String.valueOf(encriptadoArray);
+        return imprimir;
     }
 }
