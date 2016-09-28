@@ -1,0 +1,117 @@
+package servidor;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class Servidor
+{
+
+    public static void main(String[] args)
+    {
+
+        try
+        {
+            ServerSocket s = new ServerSocket(8189);
+            Socket incoming = s.accept();
+            DataInputStream entrada = new DataInputStream(incoming.getInputStream());
+            DataOutputStream saida = new DataOutputStream(incoming.getOutputStream());
+            try
+            {
+             
+                saida.writeUTF("hora - SO - disco - cripto\n");
+                saida.writeUTF("BYE\n");
+                // echo client input 
+                boolean done = false;
+                String line = new String("");
+                while (!done)
+                {
+
+                    line = entrada.readUTF();
+                    switch (line.trim())
+                    {
+                        case "hora":
+                        {
+                            Calendar now = Calendar.getInstance();
+
+                            String string;
+                            string = now.get(Calendar.HOUR_OF_DAY) + ":" + now.get(Calendar.MINUTE) + ":" + now.get(Calendar.SECOND);
+                            saida.writeUTF(string);
+                            Imprimir(string, saida);
+                            break;
+                        }
+                        case "SO":
+                        {
+                            String string = System.getProperty("os.name");
+                            Imprimir(string, saida);
+                            break;
+                        }
+                        case "disco":
+                        {
+                            long disksize = new File("/").getTotalSpace() / 1073741824;
+                            String string = disksize + "GB";
+                            Imprimir(string, saida);
+                            break;
+                        }
+                        case "BYE":
+                        {
+                            done = true;
+                            saida.writeBoolean(done);
+                            break;
+                        }
+
+                        case "cripto":
+                        {
+                            Scanner sc = new Scanner(entrada.readUTF());
+                            String string = sc.nextLine();
+
+                            Imprimir(string, saida);
+                            break;
+                        }
+                        default:
+                        {
+                            Imprimir("comando NAO encontrado\n", saida);
+                            break;
+                        }
+                    }
+                }
+            } finally
+            {
+                incoming.close();
+            }
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static void Imprimir(String string, DataOutputStream saida)
+    {
+        String imprimir = Encriptar(string);
+        try
+        {
+            saida.writeUTF(string);
+            System.out.println(string);
+            System.out.println(imprimir);
+            saida.writeUTF(imprimir + "\n");
+        } catch (Exception e)
+        {
+            System.out.println("Erro: " + e.getMessage());
+        }
+    }
+
+    public static String Encriptar(String string)
+    {
+
+        char encriptadoArray[] = string.toCharArray();
+        int aux;
+        for (int i = 0; i < encriptadoArray.length; i++)
+        {
+            aux = (int) encriptadoArray[i] + 3;
+            encriptadoArray[i] = (char) aux;
+        }
+        string = String.valueOf(encriptadoArray);
+        return string;
+    }
+
+}
